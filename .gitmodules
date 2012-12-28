@@ -1,0 +1,3 @@
+[submodule "CWin"]
+	path = CWin
+	url = https://github.com/CurlyBrackets/CWin.git
