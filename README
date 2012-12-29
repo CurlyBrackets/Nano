@@ -1,0 +1,12 @@
+Nano (need another name)
+===
+A console based IDE with all the good things; line numbers, proper tabbing, syntax highlighting, etc.
+Designed mostly to make life easier over SSH and the like.
+
+To do list:
+-Fix file loading
+-Finish adding in keypress functions
+-Scroll left/right
+-Add nice tabbing support
+-Add control functions
+-Syntax highlighting
