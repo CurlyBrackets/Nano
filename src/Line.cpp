@@ -50,7 +50,7 @@ void Line::insert(int ch){
         data = data.substr(0, cPos-1);
     }
     else{
-        data.insert(cPos, ch);
+        data.insert(cPos,1, ch);
         incrementPos();
     }
 }
