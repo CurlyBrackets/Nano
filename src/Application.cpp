@@ -15,6 +15,7 @@ Application::~Application(){
         delete temp;
         temp = temp2;
     }
+	CWin::end();
 }
 
 int Application::run(std::string filename){
@@ -24,13 +25,13 @@ int Application::run(std::string filename){
 
 void Application::init(){
     CWin::start();
-    numbers = new CWin(0,0,5,23);
-    display = new CWin(5,0,75,23);
-    control = new CWin(0,23,80,2);
+    numbers = new CWin(0,0,5,CWin::window_y()-2);
+    display = new CWin(5,0,CWin::window_x()-5,CWin::window_y()-2);
+    control = new CWin(0,CWin::window_y()-2,CWin::window_x(),2);
     refresh();
 
-    int wb = numbers->createColor(COLOUR_BLACK, COLOUR_WHITE),
-        wg = numbers->createColor(COLOUR_DARK_GREY, COLOUR_WHITE);
+    int wb = numbers->createColor(COLOUR_WHITE, COLOUR_BLACK),
+        wg = numbers->createColor(COLOUR_GREEN, COLOUR_BLACK);
 
     numbers->setCol(wg);
     numbers->clear();
@@ -85,7 +86,7 @@ int Application::execute(std::string filename){
     while(running){
         int in = getch();
         if(in > 0x1F && in < 0x7F){//typable
-
+		current->insert(in);
         }
         else if(in == 24){
             if(changed && promptBool("Save before exit? [y/n/c]"))
