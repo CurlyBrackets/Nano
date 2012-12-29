@@ -48,12 +48,18 @@ void Line::insert(int ch){
     if(ch == 13){
         insertAfter(new Line(data.substr(cPos)));
         data = data.substr(0, cPos-1);
+        //move to next line
     }
     else{
         data.insert(cPos,1, ch);
-        incrementPos();
     }
 }
+
+void Line::del(){
+	if(cPos != data.length())
+		data.erase(cPos, 1);
+}
+
 int Line::incrementPos(){
     int ret = 1;
     if(cPos < data.length()){
@@ -78,6 +84,17 @@ int Line::decrementPos(){
     return ret;
 }
 
+void Line::set_pos(int newPos){
+	if(newPos > data.length())
+		cPos = data.length();
+	else if(newPos > -1)
+		cPos = newPos;
+}
+
 std::string Line::string() const{
     return data;
+}
+
+unsigned int Line::position() const{
+	return cPos;
 }

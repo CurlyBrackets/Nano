@@ -3,6 +3,7 @@
 #include <CWin.hpp>
 #include <fstream>
 #include <string>
+#include <initializer_list>
 #include "Line.h"
 
 class Application
@@ -22,15 +23,18 @@ class Application
         CWin* numbers, *display, *control;
         std::string filename;
         bool running, changed;
-        int xShift, topLineNum;
+        unsigned int xShift, topLineNum;
 
         Line* top, *current, *first;
 
         Application();
-        void render();
+        void render();//re-render entire screen
+        void renderLine();//render current line as per yPos in display
         void renderNumbers();
 
         void renderControl();
+
+        bool string_check(std::string str, std::initializer_list<std::string>);
 };
 
 #endif // APPLICATION_H
