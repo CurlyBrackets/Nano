@@ -1,6 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
-#include <Curly/CWin.hpp>
+#include <CWin.hpp>
 #include <fstream>
 #include <string>
 #include "Line.h"
