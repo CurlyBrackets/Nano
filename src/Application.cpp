@@ -16,6 +16,7 @@ Application::~Application(){
         temp = temp2;
     }
 	CWin::end();
+	log.close();
 }
 
 int Application::run(std::string filename){
@@ -48,6 +49,9 @@ void Application::init(){
     running = true;
     xShift = 0;
     topLineNum = 1;
+    tempPos = -1;
+
+    log.open("log.txt");
 }
 
 int Application::execute(std::string filename){
@@ -88,27 +92,66 @@ int Application::execute(std::string filename){
 
     while(running){
         int in = getch();
+        if(in == 258 || in == 259 || in == 339 || in == 338){
+			if(tempPos == -1)
+				tempPos = current->position();
+        }
+        else{
+        	tempPos = -1;
+        }
+
         if(in > 0x1F && in < 0x7F){//typable
 			current->insert(in);
 			changed = true;
 			//render();//should be a single line refresh in the end
 			renderLine();
-			display->mv(display->xPos()+current->incrementPos(), display->yPos());
-			move(display->yPos(), 5+display->xPos());
+			current->incrementPos();
+			updateMove();
         }
         else if(in == CWin::key_backspace()){
-			int shift = current->decrementPos();
-			if(shift){
+			if(current->decrementPos()){
 				changed = true;
 				current->del();
 				renderLine();
-				display->mv(display->xPos()+shift, display->yPos());
-				move(display->yPos(), 5+display->xPos());
+				updateMove();
+			}
+			else if(!display->xPos() && current->prev()){
+				changed = true;
+				current->prev()->set_pos(current->prev()->string().length());//move the cursor to the joining point
+				current->prev()->append(current->string());//move the strings together
+				//some magic in order to pop the one node
+				current = current->prev();
+				Line* temp = current->next();
+				if(temp->next()){
+					temp->next()->prev(current);
+					current->next(temp->next());
+				}
+				else
+					current->next(NULL);
+				delete temp;
+
+				updateMove(-1);
+				render();
+				renderNumbers();
 			}
         }
-        else if(in == 330){
-			current->del();
-			renderLine();
+        else if(in == 330){//del
+			if(!current->del()){
+				renderLine();
+			}
+			else if(current->next()){
+				current->append(current->next()->string());
+				Line* temp = current->next();
+				if(temp->next()){
+					current->next(temp->next());
+					current->next()->prev(current);
+				}
+				else
+					current->next(NULL);
+				delete temp;
+				render();
+				renderNumbers();
+			}
 			changed = true;
         }
         else if(in == 24){//^X
@@ -125,7 +168,7 @@ int Application::execute(std::string filename){
         else if(in == 258){//dn todo check scrolling things
 			if(current->next()){
 				current = current->next();
-				current->set_pos(current->prev()->position());
+				current->set_pos(tempPos);
 				if(current->position() < xShift){
 					if(current->position()-display->xMax() < 0)
 						xShift = 0;
@@ -133,31 +176,40 @@ int Application::execute(std::string filename){
 						xShift = current->position()-display->xMax();
 					render();
 				}
-				display->mv(current->position()-xShift, display->yPos()+1);
-				move(display->yPos(), 5+display->xPos());
-				if(display->yPos() == display->yMax())
+				if(display->yPos() == display->yMax()-1){
 					top = top->next();
+					topLineNum++;
+					updateMove();
+					render();
+					renderNumbers();
+				}
+				else
+					updateMove(1);
 			}
         }
         else if(in == 259){//up
 			if(current->prev()){
 				current = current->prev();
-				current->set_pos(current->next()->position());
-				display->mv(current->position()-xShift, display->yPos()-1);
-				move(display->yPos(), 5+display->xPos());
-				if(display->yPos() == 0 && top->prev())
+				current->set_pos(tempPos);
+				if(display->yPos() == 0 && top->prev()){
 					top = top->prev();
+					topLineNum--;
+					updateMove();
+					render();
+					renderNumbers();
+				}
+				else
+					updateMove(-1);
 			}
         }
         else if(in == 260){//left
         	int shift = current->decrementPos();
-			if(display->xPos()+shift > 0 && xShift){
+			if((int)display->xPos()+shift < 0 && xShift){
 				xShift += shift;
 				render();
 			}
 			else if(display->xPos()){
-				display->mv(display->xPos()+shift, display->yPos());
-				move(display->yPos(), 5+display->xPos());
+				updateMove();
 			}
         }
         else if(in == 261){//right
@@ -167,20 +219,17 @@ int Application::execute(std::string filename){
 				render();
 			}
 			else if(shift){
-				display->mv(display->xPos()+shift, display->yPos());
-				move(display->yPos(), 5+display->xPos());
+				updateMove();
 			}
         }
         else if(in == CWin::key_end()){
         	current->set_pos(current->string().length());
         	if(current->position() < display->xMax()){
-        		display->mv(current->position(), display->yPos());
-				move(display->yPos(), 5+display->xPos());
+				updateMove();
 			}
         	else{
-        		xShift = current->position()-display->xMax();
-        		display->mv(current->position()-xShift, display->yPos());
-				move(display->yPos(), 5+display->xPos());
+        		xShift = current->position()-display->xMax()+1;
+				updateMove();
 				render();
         	}
         }
@@ -193,13 +242,20 @@ int Application::execute(std::string filename){
 					pos++;
 				cpos++;
         	}
+        	xShift = 0;
 			current->set_pos(cpos);
+			updateMove();
+			render();
         }
         else if(in == 443){//ctrl-left page left
-
+			if(xShift){
+				xShift--;
+				render();
+			}
         }
         else if(in == 444){//ctrl-right page right
-
+			xShift++;
+			render();
         }
         else if(in == 265){//F1 help
 
@@ -216,6 +272,34 @@ int Application::execute(std::string filename){
         else if(in == 18){//^R Reload
 
         }
+        else if(in == 339){//page up
+			if(top->prev()){
+				top = top->prev();
+				topLineNum--;
+				render();
+				renderNumbers();
+				updateMove(1);
+				if(display->yPos() == display->yMax()){
+					current->prev()->set_pos(tempPos);
+					current = current->prev();
+					updateMove(-1);
+				}
+			}
+        }
+        else if(in == 338){//page dn
+			if(top->next()){//should be a check for the bottom?
+				top = top->next();
+				topLineNum++;
+				render();
+				renderNumbers();
+				updateMove(-1);
+				if(display->yPos() == (unsigned int)-1){
+					current->next()->set_pos(tempPos);
+					current = current->next();
+					updateMove(1);
+				}
+			}
+        }
     }
     return 0;
 }
@@ -224,7 +308,6 @@ void Application::render(){
 	int tx = display->xPos(), ty = display->yPos();
     display->clear();
     Line* temp = top;
-
     for(unsigned int i=0;i<display->yMax() && temp;i++,temp = temp->next()){
         if(xShift < temp->string().length()){
             display->mv(0,i);
@@ -323,4 +406,19 @@ bool Application::string_check(std::string str, std::initializer_list<std::strin
 			return true;
 	}
 	return false;
+}
+
+void Application::updateMove(int mx, int my){
+	display->mv(mx, my);
+	move(display->yPos(), 5+display->xPos());
+}
+
+void Application::updateMove(int my){
+	display->mv(current->position()-xShift, display->yPos()+my);
+	move(display->yPos(), 5+display->xPos());
+}
+
+void Application::updateMove(){
+	display->mv(current->position()-xShift, display->yPos());
+	move(display->yPos(), 5+display->xPos());
 }

@@ -55,9 +55,13 @@ void Line::insert(int ch){
     }
 }
 
-void Line::del(){
-	if(cPos != data.length())
+bool Line::del(){
+	if(cPos != data.length()){
 		data.erase(cPos, 1);
+		return false;
+	}
+	else
+		return true;
 }
 
 int Line::incrementPos(){
@@ -97,4 +101,8 @@ std::string Line::string() const{
 
 unsigned int Line::position() const{
 	return cPos;
+}
+
+void Line::append(std::string data){
+	this->data += data;
 }

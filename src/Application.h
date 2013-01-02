@@ -24,6 +24,8 @@ class Application
         std::string filename;
         bool running, changed;
         unsigned int xShift, topLineNum;
+        std::ofstream log;
+        int tempPos;
 
         Line* top, *current, *first;
 
@@ -31,8 +33,11 @@ class Application
         void render();//re-render entire screen
         void renderLine();//render current line as per yPos in display
         void renderNumbers();
-
         void renderControl();
+
+        void updateMove(int my);
+        void updateMove(int mx, int my);
+        void updateMove();
 
         bool string_check(std::string str, std::initializer_list<std::string>);
 };

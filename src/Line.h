@@ -16,13 +16,14 @@ class Line
         void insertBefore(Line* line);
         void insertAfter(Line* line);
         void insert(int ch);
-        void del();
+        bool del();
         int incrementPos();
         int decrementPos();
         void set_pos(int newPos);
         unsigned int position() const;
 
         std::string string() const;
+        void append(std::string data);
     private:
         std::string data;
         Line* _p, *_n;
