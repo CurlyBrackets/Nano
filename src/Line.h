@@ -24,10 +24,13 @@ class Line
 
         std::string string() const;
         void append(std::string data);
+
+        void number(const unsigned int& value);
+        unsigned int number() const;
     private:
         std::string data;
         Line* _p, *_n;
-        unsigned int cPos;
+        unsigned int cPos, _number;
 };
 
 #endif // LINE_H

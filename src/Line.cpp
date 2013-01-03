@@ -106,3 +106,11 @@ unsigned int Line::position() const{
 void Line::append(std::string data){
 	this->data += data;
 }
+
+void Line::number(const unsigned int& value){
+	_number = value;
+}
+
+unsigned int Line::number() const{
+	return _number;
+}

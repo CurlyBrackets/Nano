@@ -23,7 +23,7 @@ class Application
         CWin* numbers, *display, *control;
         std::string filename;
         bool running, changed;
-        unsigned int xShift, topLineNum;
+        unsigned int xShift;
         std::ofstream log;
         int tempPos;
 
@@ -40,6 +40,7 @@ class Application
         void updateMove();
 
         bool string_check(std::string str, std::initializer_list<std::string>);
-};
 
+        void load();
+};
 #endif // APPLICATION_H

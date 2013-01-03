@@ -58,31 +58,7 @@ int Application::execute(std::string filename){
     init();
     this->filename = filename;
 
-    std::ifstream infile(filename.c_str());
-    if(infile.is_open()){
-        Line* last = NULL;
-        std::string temp;
-        while(!infile.eof()){
-            std::getline(infile, temp);
-            if(!last){
-                last = new Line(temp);
-                current = last;
-                top = last;
-                first = top;
-            }
-            else{
-                last->next(new Line(temp));
-                last->next()->prev(last);
-                last = last->next();
-            }
-        }
-    }
-    else{
-        top = new Line();
-        current = top;
-        first = current;
-    }
-    infile.close();
+    load();
     render();
     renderNumbers();
     renderControl();
@@ -261,8 +237,9 @@ int Application::execute(std::string filename){
 
         }
         else if(in == 6){//^F find
+			std::string what = promptString("String to search: ");
 
-        }
+		}
         else if(in == 15){//^O Mode
 
         }
@@ -311,7 +288,20 @@ void Application::render(){
     for(unsigned int i=0;i<display->yMax() && temp;i++,temp = temp->next()){
         if(xShift < temp->string().length()){
             display->mv(0,i);
-            display->print(temp->string().substr(xShift));
+            //CHECK THIS
+            std::string str = temp->string().substr(xShift);
+            int pos = 0;
+            for(unsigned int i=0;i<str.length() && pos < display->xMax();i++){
+            	if(str[i] > 0x1F && str[i] < 0x7F){
+					pos++;
+            		display->print(str[i]);
+            	}
+            	else if(str[i] == '\t'){
+					pos += display->xPos()%4;
+            		for(int i2=display->xPos()%4;i2>-1;i2--)
+            			display->print(' ');
+            	}
+            }
         }
     }
     display->refresh();
@@ -321,11 +311,18 @@ void Application::render(){
 void Application::renderLine(){
 	int tx = display->xPos();
 	display->mv(0, display->yPos());
-	for(unsigned int i=0;i<display->xMax();i++){
-		if(i + xShift < current->string().length())
-			display->print(current->string()[i+xShift]);
-		else
-			display->print(' ');
+	std::string str = temp->string().substr(xShift);
+	int pos = 0;
+	for(unsigned int i=0;i<str.length() && pos < display->xMax();i++){
+		if(str[i] > 0x1F && str[i] < 0x7F){
+			pos++;
+			display->print(str[i]);
+		}
+		else if(str[i] == '\t'){
+			pos += display->xPos()%4;
+			for(int i2=display->xPos()%4;i2>-1;i2--)
+				display->print(' ');
+		}
 	}
 	display->refresh();
 	display->mv(tx, display->yPos()-1);
@@ -421,4 +418,74 @@ void Application::updateMove(int my){
 void Application::updateMove(){
 	display->mv(current->position()-xShift, display->yPos());
 	move(display->yPos(), 5+display->xPos());
+}
+
+void Application::find(std::string what){
+	int matchPos;
+	for(unsigned int i=current->position();i<current->string().length();i++){
+
+	}
+	Line* temp = current->next();
+	while(temp != current){
+		if(!temp)
+			temp = first;
+		for(unsigned int i=0;i<temp->string().length();i++){
+			for(matchPos = 0;matchPos < what.length() && what[matchPos] == temp->string()[i];i++,matchPos++);
+
+			if(matchPos == what.length()){
+				current = temp;
+				Line* iter = top;
+				for(unsigned int i2=0;i2<display->yMax() && iter;i2++){
+					if(iter == current){
+						display->mv(0,i2);
+						iter = NULL;
+					}
+					iter = iter->next();
+				}
+				if(!iter){
+					current = top;
+					display->mv(0,0);
+				}
+				if(i > display->xMax())
+					xShift = i-display->xMax();
+				else
+					xShift = 0;
+				current->set_pos(i);
+				updateMove();
+				return;
+			}
+		}
+	}
+
+	for(unsigned int i =0;i<current->position();i++){
+		//match check
+	}
+}
+
+void Application::load(){
+	std::ifstream infile(filename.c_str());
+    if(infile.is_open()){
+        Line* last = NULL;
+        std::string temp;
+        while(!infile.eof()){
+            std::getline(infile, temp);
+            if(!last){
+                last = new Line(temp);
+                current = last;
+                top = last;
+                first = top;
+            }
+            else{
+                last->next(new Line(temp));
+                last->next()->prev(last);
+                last = last->next();
+            }
+        }
+    }
+    else{
+        top = new Line();
+        current = top;
+        first = current;
+    }
+    infile.close();
 }
