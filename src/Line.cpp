@@ -64,11 +64,11 @@ bool Line::del(){
 		return true;
 }
 
-int Line::incrementPos(){
+int Line::incrementPos(unsigned int curPos){
     int ret = 1;
     if(cPos < data.length()){
-        if(data[cPos] == 9)
-            ret = 4;
+        if(data[cPos] == '\t')
+            ret = 4-curPos%5;
         cPos++;
     }
     else
@@ -113,4 +113,10 @@ void Line::number(const unsigned int& value){
 
 unsigned int Line::number() const{
 	return _number;
+}
+
+void Line::set_num(unsigned int num){
+	number(num);
+	if(next())
+	 	next()->set_num(num+1);
 }

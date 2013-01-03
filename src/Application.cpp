@@ -48,7 +48,6 @@ void Application::init(){
 
     running = true;
     xShift = 0;
-    topLineNum = 1;
     tempPos = -1;
 
     log.open("log.txt");
@@ -81,7 +80,7 @@ int Application::execute(std::string filename){
 			changed = true;
 			//render();//should be a single line refresh in the end
 			renderLine();
-			current->incrementPos();
+			current->incrementPos(display->xPos());
 			updateMove();
         }
         else if(in == CWin::key_backspace()){
@@ -105,6 +104,7 @@ int Application::execute(std::string filename){
 				else
 					current->next(NULL);
 				delete temp;
+				current->set_num(current->number());
 
 				updateMove(-1);
 				render();
@@ -125,6 +125,8 @@ int Application::execute(std::string filename){
 				else
 					current->next(NULL);
 				delete temp;
+				current->set_num(current->number());
+
 				render();
 				renderNumbers();
 			}
@@ -154,7 +156,6 @@ int Application::execute(std::string filename){
 				}
 				if(display->yPos() == display->yMax()-1){
 					top = top->next();
-					topLineNum++;
 					updateMove();
 					render();
 					renderNumbers();
@@ -169,7 +170,6 @@ int Application::execute(std::string filename){
 				current->set_pos(tempPos);
 				if(display->yPos() == 0 && top->prev()){
 					top = top->prev();
-					topLineNum--;
 					updateMove();
 					render();
 					renderNumbers();
@@ -189,7 +189,7 @@ int Application::execute(std::string filename){
 			}
         }
         else if(in == 261){//right
-			int shift = current->incrementPos();
+			int shift = current->incrementPos(display->xPos());
 			if(display->xPos()+shift > display->xMax()){
 				xShift += shift;
 				render();
@@ -252,7 +252,6 @@ int Application::execute(std::string filename){
         else if(in == 339){//page up
 			if(top->prev()){
 				top = top->prev();
-				topLineNum--;
 				render();
 				renderNumbers();
 				updateMove(1);
@@ -266,7 +265,6 @@ int Application::execute(std::string filename){
         else if(in == 338){//page dn
 			if(top->next()){//should be a check for the bottom?
 				top = top->next();
-				topLineNum++;
 				render();
 				renderNumbers();
 				updateMove(-1);
@@ -290,15 +288,15 @@ void Application::render(){
             display->mv(0,i);
             //CHECK THIS
             std::string str = temp->string().substr(xShift);
-            int pos = 0;
+            unsigned int pos = 0;
             for(unsigned int i=0;i<str.length() && pos < display->xMax();i++){
             	if(str[i] > 0x1F && str[i] < 0x7F){
 					pos++;
             		display->print(str[i]);
             	}
             	else if(str[i] == '\t'){
-					pos += display->xPos()%4;
-            		for(int i2=display->xPos()%4;i2>-1;i2--)
+					pos += 4-display->xPos()%5;
+            		for(int i2=4-display->xPos()%5;i2>-1;i2--)
             			display->print(' ');
             	}
             }
@@ -311,19 +309,21 @@ void Application::render(){
 void Application::renderLine(){
 	int tx = display->xPos();
 	display->mv(0, display->yPos());
-	std::string str = temp->string().substr(xShift);
-	int pos = 0;
+	std::string str = current->string().substr(xShift);
+	unsigned int pos = 0;
 	for(unsigned int i=0;i<str.length() && pos < display->xMax();i++){
 		if(str[i] > 0x1F && str[i] < 0x7F){
 			pos++;
 			display->print(str[i]);
 		}
 		else if(str[i] == '\t'){
-			pos += display->xPos()%4;
-			for(int i2=display->xPos()%4;i2>-1;i2--)
+			pos += 4-display->xPos()%5;
+			for(int i2=4-display->xPos()%5;i2>-1;i2--)
 				display->print(' ');
 		}
 	}
+	for(;pos<display->xMax();pos++)
+		display->print(' ');
 	display->refresh();
 	display->mv(tx, display->yPos()-1);
 }
@@ -331,8 +331,8 @@ void Application::renderLine(){
 void Application::renderNumbers(){
     numbers->clear();
     Line* temp = top;
-    for(unsigned int i = topLineNum;i<topLineNum + numbers->yMax() && temp;i++,temp = temp->next()){
-        numbers->mv(0,i-topLineNum);
+    for(unsigned int i = top->number();i<top->number() + numbers->yMax() && temp;i++,temp = temp->next()){
+        numbers->mv(0,i-top->number());
         std::string temp = std::to_string(i);
         for(unsigned int i=0;i<4-temp.length();i++)
             numbers->print(' ');
@@ -488,4 +488,5 @@ void Application::load(){
         first = current;
     }
     infile.close();
+    first->set_num(1);
 }

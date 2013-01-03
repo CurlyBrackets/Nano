@@ -42,5 +42,6 @@ class Application
         bool string_check(std::string str, std::initializer_list<std::string>);
 
         void load();
+        void find(std::string what);
 };
 #endif // APPLICATION_H

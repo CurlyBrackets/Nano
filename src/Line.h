@@ -17,7 +17,7 @@ class Line
         void insertAfter(Line* line);
         void insert(int ch);
         bool del();
-        int incrementPos();
+        int incrementPos(unsigned int curPos);
         int decrementPos();
         void set_pos(int newPos);
         unsigned int position() const;
@@ -27,6 +27,7 @@ class Line
 
         void number(const unsigned int& value);
         unsigned int number() const;
+        void set_num(unsigned int num);
     private:
         std::string data;
         Line* _p, *_n;
