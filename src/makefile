@@ -1,4 +1,4 @@
-FLAGS = -Wall -std=c++0x -I../CWin
+FLAGS = -Wall -std=c++0x -I../CWin -I../inc
 OBJS = main.o Application.o Line.o
 
 ifneq ($(shell uname), Linux)
