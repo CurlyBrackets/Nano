@@ -85,12 +85,14 @@ int Application::execute(std::string filename){
         }
         else if(in == CWin::key_backspace()){
 			if(current->decrementPos()){
+				log << "normal" << std::endl;
 				changed = true;
 				current->del();
 				renderLine();
 				updateMove();
 			}
 			else if(!display->xPos() && current->prev()){
+				log << "fgsfds" << std::endl;
 				changed = true;
 				current->prev()->set_pos(current->prev()->string().length());//move the cursor to the joining point
 				current->prev()->append(current->string());//move the strings together
@@ -286,7 +288,6 @@ void Application::render(){
     for(unsigned int i=0;i<display->yMax() && temp;i++,temp = temp->next()){
         if(xShift < temp->string().length()){
             display->mv(0,i);
-            //CHECK THIS
             std::string str = temp->string().substr(xShift);
             unsigned int pos = 0;
             for(unsigned int i=0;i<str.length() && pos < display->xMax();i++){
@@ -333,7 +334,7 @@ void Application::renderNumbers(){
     Line* temp = top;
     for(unsigned int i = top->number();i<top->number() + numbers->yMax() && temp;i++,temp = temp->next()){
         numbers->mv(0,i-top->number());
-        std::string temp = std::to_string(i);
+        std::string temp = Curly::to_string(i);
         for(unsigned int i=0;i<4-temp.length();i++)
             numbers->print(' ');
         numbers->print(temp);
@@ -398,8 +399,8 @@ void Application::save(){
 }
 
 bool Application::string_check(std::string str, std::initializer_list<std::string> ini){
-	for(std::string x:ini){
-		if(!str.compare(x))
+	for(auto it = ini.begin();it != ini.end();++it){
+		if(!str.compare(*it))
 			return true;
 	}
 	return false;

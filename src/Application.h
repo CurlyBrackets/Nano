@@ -5,6 +5,7 @@
 #include <string>
 #include <initializer_list>
 #include "Line.h"
+#include <Convert.h>
 
 class Application
 {
