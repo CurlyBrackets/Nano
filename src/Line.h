@@ -1,11 +1,13 @@
 #ifndef LINE_H
 #define LINE_H
 #include <string>
+#include "String.h"
 
 class Line
 {
     public:
-        Line(std::string initialData="");
+        //Line(std::string initialData="");
+        Line(String initialData=String(""));
         ~Line();
 
         void prev(Line* value);
@@ -21,15 +23,19 @@ class Line
         int decrementPos();
         void set_pos(int newPos);
         unsigned int position() const;
+        //unsigned int cursor_position()
 
-        std::string string() const;
-        void append(std::string data);
+        //std::string string() const;
+        //void append(std::string data);
+        String string();
+       	void append(String data);
 
         void number(const unsigned int& value);
         unsigned int number() const;
         void set_num(unsigned int num);
     private:
-        std::string data;
+        //std::string data;
+        String data;
         Line* _p, *_n;
         unsigned int cPos, _number;
 };

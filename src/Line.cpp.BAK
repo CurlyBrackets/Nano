@@ -1,6 +1,6 @@
 #include "Line.h"
 
-Line::Line(String initialData):
+Line::Line(std::string initialData):
 data(initialData),_p(NULL),_n(NULL),cPos(0){
     //ctor
 }
@@ -51,13 +51,13 @@ void Line::insert(int ch){
         //move to next line
     }
     else{
-        data.insert(new Character(ch), cPos);
+        data.insert(cPos,1, ch);
     }
 }
 
 bool Line::del(){
 	if(cPos != data.length()){
-		delete data.pop(cPos);
+		data.erase(cPos, 1);
 		return false;
 	}
 	else
@@ -67,7 +67,7 @@ bool Line::del(){
 int Line::incrementPos(unsigned int curPos){
     int ret = 1;
     if(cPos < data.length()){
-        if(data[cPos]->ch() == '\t')
+        if(data[cPos] == '\t')
             ret = 4-curPos%5;
         cPos++;
     }
@@ -79,7 +79,7 @@ int Line::incrementPos(unsigned int curPos){
 int Line::decrementPos(){
     int ret = -1;
     if(cPos > 0){
-        if(data[cPos-1]->ch() == 9)
+        if(data[cPos-1] == 9)
             ret = -4;
         cPos--;
     }
@@ -95,7 +95,7 @@ void Line::set_pos(int newPos){
 		cPos = newPos;
 }
 
-String Line::string(){
+std::string Line::string() const{
     return data;
 }
 
@@ -103,7 +103,7 @@ unsigned int Line::position() const{
 	return cPos;
 }
 
-void Line::append(String data){
+void Line::append(std::string data){
 	this->data += data;
 }
 

@@ -1,6 +1,7 @@
 FLAGS = -Wall -std=c++0x -I./CWin
 ifeq ($(shell uname), windows32)
 	LIBS = -lpdcurses
+	DEFS = -DUSE_PDCURSES -DWIN32
 else
 	ifneq ($(shell uname), Linux)
 		FLAGS += -IC:/cygwin/usr/include/ncurses

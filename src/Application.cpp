@@ -213,8 +213,8 @@ int Application::execute(std::string filename){
         }
         else if(in == 262){//home
         	int pos = 0, cpos = 0;
-        	while(current->string()[cpos] < 0x20 || current->string()[cpos] > 0x7E){
-        		if(current->string()[cpos] == 9)
+        	while(current->string()[cpos]->ch() < 0x20 || current->string()[cpos]->ch() > 0x7E){
+        		if(current->string()[cpos]->ch() == 9)
         			pos += 4; //TAB-ADJUST
 				else
 					pos++;
@@ -281,7 +281,7 @@ int Application::execute(std::string filename){
     return 0;
 }
 
-void Application::render(){
+/*void Application::render(){
 	int tx = display->xPos(), ty = display->yPos();
     display->clear();
     Line* temp = top;
@@ -318,6 +318,52 @@ void Application::renderLine(){
 			display->print(str[i]);
 		}
 		else if(str[i] == '\t'){
+			pos += 4-display->xPos()%5;
+			for(int i2=4-display->xPos()%5;i2>-1;i2--)
+				display->print(' ');
+		}
+	}
+	for(;pos<display->xMax();pos++)
+		display->print(' ');
+	display->refresh();
+	display->mv(tx, display->yPos()-1);
+}*/
+
+void Application::render(){
+	int tx = display->xPos(), ty = display->yPos();
+    display->clear();
+    Line* temp = top;
+    for(unsigned int i=0;i<display->yMax() && temp;i++,temp = temp->next()){
+        if(xShift < temp->string().length()){
+            display->mv(0,i);
+            unsigned int pos = 0;
+            for(auto it = temp->string().iter_at(xShift);it != temp->string().end() && pos < display->xMax();++it){
+            	if((*it)->ch() > 0x1F && (*it)->ch() < 0x7F){
+					pos++;
+            		display->print((*it)->ch());
+            	}
+            	else if((*it)->ch() == '\t'){
+					pos += 4-display->xPos()%5;
+            		for(int i2=4-display->xPos()%5;i2>-1;i2--)
+            			display->print(' ');
+            	}
+            }
+        }
+    }
+    display->refresh();
+    display->mv(tx,ty);
+}
+
+void Application::renderLine(){
+	int tx = display->xPos();
+	display->mv(0, display->yPos());
+	unsigned int pos = 0;
+	for(auto it = current->string().iter_at(xShift);it != current->string().end() && pos < display->xMax();++it){
+		if((*it)->ch() > 0x1F && (*it)->ch() < 0x7F){
+			pos++;
+			display->print((*it)->ch());
+		}
+		else if((*it)->ch() == '\t'){
 			pos += 4-display->xPos()%5;
 			for(int i2=4-display->xPos()%5;i2>-1;i2--)
 				display->print(' ');
@@ -431,7 +477,7 @@ void Application::find(std::string what){
 		if(!temp)
 			temp = first;
 		for(unsigned int i=0;i<temp->string().length();i++){
-			for(matchPos = 0;matchPos < what.length() && what[matchPos] == temp->string()[i];i++,matchPos++);
+			for(matchPos = 0;matchPos < what.length() && what[matchPos] == temp->string()[i]->ch();i++,matchPos++);
 
 			if(matchPos == what.length()){
 				current = temp;

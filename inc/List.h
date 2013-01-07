@@ -1,6 +1,6 @@
 #ifndef __LIST_H__
 #define __LIST_H__
-#include <initilizer_list>
+#include <initializer_list>
 #include <algorithm>
 
 /*
@@ -10,123 +10,166 @@
 	Node must have copy ctor
 */
 
-class Node{
-	public:
-		virtual Node():
-		_n(NULL),_p(NULL){}
-		virtual Node(const Node& b) = 0;//must include copying of all members as well as calling Node
-		void next(const Node* value){
-			_n = value;
-		}
-		Node* next() const{
-			return _n;
-		}
-		void prev(const Node* value){
-			_p = value;
-		}
-		Node* prev() const{
-			return _p;
-		}
-	protected:
-		Node* _n, *_p;
-}
-
 template <class T>
 class List{
 	public:
-		class iterator{
+		class base_iterator{
 			public:
-				iterator(T* node):
-				current(node),end(false){
+				base_iterator(T* node):
+				current(node),_end(false){
 
 				}
-				iterator():
-				end(true),current(NULL){
+				base_iterator():
+				current(NULL),_end(true){
 
 				}
 				void operator++(){
 					if(current->next())
 						current = current->next();
 					else
-						end = true;
+						_end = true;
 				}
 				void operator--(){
 					if(current->prev())
 						current = current->prev();
 					else
-						end = true;
-				}
-				bool operator==(const iterator& b){
-					if(b.end())
-						return end();
-					return *b == **this;
-				}
-				T* operator*(){
-					return current;
+						_end = true;
 				}
 				bool end() const{
 					return _end;
 				}
-			private:
+			protected:
 				T* current;
 				bool _end;
 		};
-	List(initializer_list<T*> initial):
-	size(0),first(NULL),last(NULL){
-		for(T* node:inital){
-			push_back(node);
-		}
-	}
+		class iterator:public base_iterator{
+			public:
+				iterator(T* node){
+					this->current = node;
+					this->_end = false;
+				}
+				iterator(){
+					this->current = NULL;
+					this->_end = true;
+				}
+				bool operator==(iterator b){
+					if(b.end())
+						return end();
+					return *b == **this;
+				}
+				bool operator!=(iterator b){
+					if(b.end())
+						return !end();
+					return *b != **this;
+				}
+				T* operator*(){
+					return this->current;
+				}
+		};
+		class const_iterator:public base_iterator{
+			public:
+				const_iterator(T* node){
+					this->current = node;
+					this->_end = false;
+				}
+				const_iterator(){
+					this->current = NULL;
+					this->_end = true;
+				}
+				const_iterator(const iterator& b){
+					this->current = *b;
+					this->_end = b.end();
+				}
+				bool operator==(const const_iterator& b){
+					if(b.end())
+						return end();
+					return *b == **this;
+				}
+				bool operator!=(const const_iterator& b){
+					if(b.end())
+						return !end();
+					return *b != **this;
+				}
+				T* operator*() const{
+					return const_cast<T*>(this->current);
+				}
+		};
+		List():
+		first(NULL),last(NULL),size(0){
 
-	iterator begin(){
-		return iterator(first);
-	}
-	iterator end(){
-		return iterator();
-	}
-	void push_back(T* node){
-		if(!first){
-			first = node;
-			last = node;
 		}
-		else{
-			last->next(node);
-			node->prev(last);
-			last = node;
+		List(std::initializer_list<T*> initial):
+		first(NULL),size(0),last(NULL){
+			for(auto it = initial.begin();it != initial.end();++it){
+				push_back(*it);
+			}
 		}
-		size++;
-	}
-	void insert(T* node, unsigned int index){
-		T* n = (*this)[index];
-		node->next(n->next);
-		node->next()->prev(node);
-		node->prev(n);
-		n->next(node);
-		size++;
-	}
-	T* pop(unsigned int pos){
-		T* n = (*this)[pos];
-		n->prev()->next(n->next());
-		n->next()->prev(n->prev());
-		size--;
-		return n;
-	}
 
-
-	T* operator[](unsigned int index){
-		T* temp = first;
-		for(unsigned int i=0;i<index && temp;i++){
-			temp = temp->next();
-			if(!temp)
-				return NULL;
+		iterator begin(){
+			return iterator(first);
 		}
-		return temp;
-	}
-	void operator+=(const List& b){//this acts as a copy
-		if(!b.size())
-			return;
-		std::for_each(b.begin(), b.end(), [this](T* n){this->push_back(new T(*n));});
-	}
+		iterator end(){
+			return iterator();
+		}
+		const_iterator cbegin() const{
+			return const_iterator(first);
+		}
+		const_iterator cend() const{
+			return const_iterator();
+		}
+		void push_back(T* node){
+			if(!first){
+				first = node;
+				last = node;
+			}
+			else{
+				last->next(node);
+				node->prev(last);
+				last = node;
+			}
+			size++;
+		}
+		void insert(T* node, unsigned int index){
+			T* n = *iter_at(index);
+			node->next(n->next());
+			node->next()->prev(node);
+			node->prev(n);
+			n->next(node);
+			size++;
+		}
+		T* pop(unsigned int pos){
+			T* n = (*this)[pos];
+			n->prev()->next(n->next());
+			n->next()->prev(n->prev());
+			size--;
+			return n;
+		}
+
+		iterator iter_at(unsigned int index){
+			iterator ret = begin();
+			for(unsigned int i=0;i<index && ret != end();i++){
+				++ret;
+			}
+			return ret;
+		}
+		T* operator[](unsigned int index){
+			T* temp = first;
+			for(unsigned int i=0;i<index && temp;i++){
+				temp = temp->next();
+				if(!temp)
+					return NULL;
+			}
+			return temp;
+		}
+		void operator+=(const List& b){//this acts as a copy
+			if(!b.length())
+				return;
+			std::for_each(b.cbegin(), b.cend(), [this](T* n){this->push_back(new T(*n));});
+		}
+
+		unsigned int length() const{
+			return size;
+		}
 
 	protected:
 		T* first, *last;
