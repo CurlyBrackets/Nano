@@ -1,7 +1,7 @@
 #include "Line.h"
 
 Line::Line(String initialData):
-data(initialData),_p(NULL),_n(NULL),cPos(0){
+data(initialData),_p(NULL),_n(NULL),cPos(0),currentChar(data.begin()){
     //ctor
 }
 
@@ -45,19 +45,19 @@ void Line::insertAfter(Line* line){
 }
 
 void Line::insert(int ch){
-    if(ch == 13){
-        insertAfter(new Line(data.substr(cPos)));
-        data = data.substr(0, cPos-1);
+    if(ch == CWin::key_enter()){
+        /*insertAfter(new Line(data.substr(cPos)));
+        data = data.substr(0, cPos-1);*/
         //move to next line
     }
     else{
-        data.insert(new Character(ch), cPos);
+        data.insert(new Character(ch), currentChar);
     }
 }
 
 bool Line::del(){
-	if(cPos != data.length()){
-		delete data.pop(cPos);
+	if(currentChar != data.end()){
+		delete data.pop(currentChar);
 		return false;
 	}
 	else
@@ -66,13 +66,13 @@ bool Line::del(){
 
 int Line::incrementPos(unsigned int curPos){
     int ret = 1;
-    if(cPos < data.length()){
-        if(data[cPos]->ch() == '\t')
-            ret = 4-curPos%5;
-        cPos++;
+    if(currentChar != data.end()){
+    	if((*currentChar)->ch() == '\t')
+    		ret = 4-curPos%5;
+    	++currentChar();
     }
     else
-        ret = 0;
+    	ret = 0;
     return ret;
 }
 
@@ -119,4 +119,8 @@ void Line::set_num(unsigned int num){
 	number(num);
 	if(next())
 	 	next()->set_num(num+1);
+}
+
+unsigned int Line::cursor_position() const{
+	return (*currentChar)->position();
 }

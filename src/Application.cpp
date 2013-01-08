@@ -192,13 +192,13 @@ int Application::execute(std::string filename){
         }
         else if(in == 261){//right
 			int shift = current->incrementPos(display->xPos());
-			if(display->xPos()+shift > display->xMax()){
+			/*if(display->xPos()+shift > display->xMax()){
 				xShift += shift;
 				render();
 			}
 			else if(shift){
 				updateMove();
-			}
+			}*/
         }
         else if(in == CWin::key_end()){
         	current->set_pos(current->string().length());

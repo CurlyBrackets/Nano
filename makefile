@@ -5,6 +5,7 @@ ifeq ($(shell uname), windows32)
 else
 	ifneq ($(shell uname), Linux)
 		FLAGS += -IC:/cygwin/usr/include/ncurses
+		DEFS = -DWIN32
 	endif
 	LIBS = -lncurses
 endif
@@ -17,6 +18,9 @@ all:
 	cd src; make
 	g++ $(OBJS) -o Nano $(LIBS)
 
+key:
+	g++ $(DEFS) $(FLAGS) CWin/CWin.o test.cpp -o key $(LIBS)
+	
 #clean obj
 clean:
 	cd CWin; make clean

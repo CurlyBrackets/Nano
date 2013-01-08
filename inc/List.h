@@ -152,14 +152,14 @@ class List{
 
 		//iterator based methods
 
-		void insert(T* node, iterator& it){
+		void insert(T* node, iterator it){
 			node->next((*it)->next());
 			node->next()->prev(node);
 			node->prev(*it);
 			(*it)->next(node);
 			size++;
 		}
-		T* pop(iterator& it){
+		T* pop(iterator it){
 			if((*it)->next())
 				(*it)->next()->prev((*it)->prev());
 			if((*it)->prev())
