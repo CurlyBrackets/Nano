@@ -1,6 +1,6 @@
 #ifndef HIGHLIGHTER_H
 #define HIGHLIGHTER_H
-#include <Curly/CWin.hpp>
+#include <CWin.hpp>
 
 //make a highlighter class here
 

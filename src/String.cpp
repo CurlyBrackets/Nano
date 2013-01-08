@@ -15,6 +15,16 @@ Character::Character(const Character& b):
 _ch(b.ch()),_col(b.colour()),_pos(b.position()),_n(NULL),_p(NULL){
 }
 
+int Character::ch() const{
+	return _ch;
+}
+int Character::colour() const{
+	return _col;
+}
+int Character::position() const{
+	return _pos;
+}
+
 void Character::set_pos(unsigned int num){
 	_pos = num;
 	if(next())
