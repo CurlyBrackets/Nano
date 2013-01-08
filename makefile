@@ -9,7 +9,7 @@ else
 	LIBS = -lncurses
 endif
 
-OBJS = CWin/CWin.o src/main.o src/Application.o src/Line.o
+OBJS = CWin/CWin.o src/main.o src/Application.o src/Line.o src/String.o
 
 #link
 all:

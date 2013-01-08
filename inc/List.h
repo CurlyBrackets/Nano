@@ -129,13 +129,17 @@ class List{
 			}
 			size++;
 		}
+
+		//standard index based methods
+
 		void insert(T* node, unsigned int index){
-			T* n = *iter_at(index);
+			/*T* n = *iter_at(index);
 			node->next(n->next());
 			node->next()->prev(node);
 			node->prev(n);
 			n->next(node);
-			size++;
+			size++;*/
+			insert(node, iter_at(index));
 		}
 		T* pop(unsigned int pos){
 			T* n = (*this)[pos];
@@ -143,6 +147,19 @@ class List{
 			n->next()->prev(n->prev());
 			size--;
 			return n;
+		}
+
+		//iterator based methods
+
+		void insert(T* node, iterator& it){
+			node->next((*it)->next());
+			node->next()->prev(node);
+			node->prev(*it);
+			(*it)->next(node);
+			size++;
+		}
+		T* pop(iterator& it){
+
 		}
 
 		iterator iter_at(unsigned int index){

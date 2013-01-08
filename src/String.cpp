@@ -1,5 +1,7 @@
 #include "String.h"
 
+
+
 std::ostream& operator<<(std::ostream &out, const String& str){
 	for(auto it=str.cbegin();it != str.cend();++it)
 		out << (char)((*it)->ch());

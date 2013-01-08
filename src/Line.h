@@ -23,7 +23,7 @@ class Line
         int decrementPos();
         void set_pos(int newPos);
         unsigned int position() const;
-        //unsigned int cursor_position()
+        unsigned int cursor_position() const;
 
         //std::string string() const;
         //void append(std::string data);
@@ -38,6 +38,7 @@ class Line
         String data;
         Line* _p, *_n;
         unsigned int cPos, _number;
+        String::iterator currentChar;
 };
 
 #endif // LINE_H

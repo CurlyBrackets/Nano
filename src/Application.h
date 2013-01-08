@@ -5,7 +5,6 @@
 #include <string>
 #include <initializer_list>
 #include "Line.h"
-#include <Convert.h>
 
 class Application
 {
@@ -44,5 +43,8 @@ class Application
 
         void load();
         void find(std::string what);
+
+        std::string to_string(unsigned int i);
+        std::string to_string(int i);
 };
 #endif // APPLICATION_H
