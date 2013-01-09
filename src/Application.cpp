@@ -69,7 +69,7 @@ int Application::execute(std::string filename){
         int in = getch();
         if(in == 258 || in == 259 || in == 339 || in == 338){
 			if(tempPos == -1)
-				tempPos = current->position();
+				tempPos = current->cursor_position();
         }
         else{
         	tempPos = -1;
@@ -146,14 +146,18 @@ int Application::execute(std::string filename){
 				running = false;
         }
         else if(in == 258){//dn todo check scrolling things
+        	log << "Start" << std::endl;
 			if(current->next()){
 				current = current->next();
+				log << "set next" << std::endl;
 				current->set_pos(tempPos);
-				if(current->position() < xShift){
-					if(current->position()-display->xMax() < 0)
+				log << "set pos" << std::endl;
+				if(current->cursor_position() < xShift){
+					log << "To the left" << std::endl;
+					if(current->cursor_position()-display->xMax() < 0)
 						xShift = 0;
 					else
-						xShift = current->position()-display->xMax();
+						xShift = current->cursor_position()-display->xMax();
 					render();
 				}
 				if(display->yPos() == display->yMax()-1){
@@ -182,13 +186,18 @@ int Application::execute(std::string filename){
         }
         else if(in == 260){//left
         	int shift = current->decrementPos();
-			if((int)display->xPos()+shift < 0 && xShift){
+			/*if((int)display->xPos()+shift < 0 && xShift){
 				xShift += shift;
 				render();
 			}
 			else if(display->xPos()){
 				updateMove();
+			}*/
+			if(current->cursor_position() < xShift){
+				xShift = current->cursor_position()-display->xMax();
+				render();
 			}
+			updateMove();
         }
         else if(in == 261){//right
 			int shift = current->incrementPos(display->xPos());
@@ -199,6 +208,11 @@ int Application::execute(std::string filename){
 			else if(shift){
 				updateMove();
 			}*/
+			if(current->cursor_position() > xShift+display->xMax()){
+				xShift = current->cursor_position()-display->xMax();
+				render();
+			}
+			updateMove();
         }
         else if(in == CWin::key_end()){
         	current->set_pos(current->string().length());
@@ -410,12 +424,12 @@ void Application::updateMove(int mx, int my){
 }
 
 void Application::updateMove(int my){
-	display->mv(current->position()-xShift, display->yPos()+my);
+	display->mv(current->cursor_position()-xShift, display->yPos()+my);
 	move(display->yPos(), 5+display->xPos());
 }
 
 void Application::updateMove(){
-	display->mv(current->position()-xShift, display->yPos());
+	display->mv(current->cursor_position()-xShift, display->yPos());
 	move(display->yPos(), 5+display->xPos());
 }
 

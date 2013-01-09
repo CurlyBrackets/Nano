@@ -23,7 +23,7 @@ class Line
         int decrementPos();
         void set_pos(int newPos);
         unsigned int position() const;
-        unsigned int cursor_position() const;
+        unsigned int cursor_position();
 
         //std::string string() const;
         //void append(std::string data);

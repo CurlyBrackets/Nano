@@ -52,12 +52,15 @@ void Line::insert(int ch){
     }
     else{
         data.insert(new Character(ch), currentChar);
+        (*currentChar)->prev()->set_pos((*currentChar)->position());//update positions?
     }
 }
 
 bool Line::del(){
 	if(currentChar != data.end()){
-		delete data.pop(currentChar);
+		String::iterator it = currentChar;
+		++currentChar;
+		delete data.pop(it);
 		return false;
 	}
 	else
@@ -69,7 +72,7 @@ int Line::incrementPos(unsigned int curPos){
     if(currentChar != data.end()){
     	if((*currentChar)->ch() == '\t')
     		ret = 4-curPos%5;
-    	++currentChar();
+    	++currentChar;
     }
     else
     	ret = 0;
@@ -78,21 +81,27 @@ int Line::incrementPos(unsigned int curPos){
 
 int Line::decrementPos(){
     int ret = -1;
-    if(cPos > 0){
+    /*if(cPos > 0){
         if(data[cPos-1]->ch() == 9)
             ret = -4;
         cPos--;
     }
     else
-        ret = 0;
+        ret = 0;*/
+	if((*currentChar)->prev()){
+		--currentChar;
+	}
+	else
+		ret = 0;
     return ret;
 }
 
 void Line::set_pos(int newPos){
-	if(newPos > data.length())
+	/*if(newPos > data.length())
 		cPos = data.length();
 	else if(newPos > -1)
-		cPos = newPos;
+		cPos = newPos;*/
+	currentChar = data.iter_at(newPos);
 }
 
 String Line::string(){
@@ -121,6 +130,6 @@ void Line::set_num(unsigned int num){
 	 	next()->set_num(num+1);
 }
 
-unsigned int Line::cursor_position() const{
+unsigned int Line::cursor_position(){
 	return (*currentChar)->position();
 }
