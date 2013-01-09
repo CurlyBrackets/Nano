@@ -46,7 +46,10 @@ class List{
 			public:
 				iterator(T* node){
 					this->current = node;
-					this->_end = false;
+					if(!node)
+						this->_end = true;
+					else
+						this->_end = false;
 				}
 				iterator(){
 					this->current = NULL;
@@ -70,7 +73,10 @@ class List{
 			public:
 				const_iterator(T* node){
 					this->current = node;
-					this->_end = false;
+					if(!node)
+						this->_end = true;
+					else
+						this->_end = false;
 				}
 				const_iterator(){
 					this->current = NULL;

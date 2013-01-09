@@ -131,5 +131,10 @@ void Line::set_num(unsigned int num){
 }
 
 unsigned int Line::cursor_position(){
-	return (*currentChar)->position();
+	if(!data.length())
+		return 0;
+	else if(currentChar == data.end())
+		return data[data.length()]->position();
+	else
+		return (*currentChar)->position();
 }

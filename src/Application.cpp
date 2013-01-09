@@ -160,7 +160,9 @@ int Application::execute(std::string filename){
 						xShift = current->cursor_position()-display->xMax();
 					render();
 				}
+				log << "Continuing" << std::endl;
 				if(display->yPos() == display->yMax()-1){
+					log << "bottom" << std::endl;
 					top = top->next();
 					updateMove();
 					render();
@@ -168,6 +170,7 @@ int Application::execute(std::string filename){
 				}
 				else
 					updateMove(1);
+				log << "Done" << std::endl << std::endl;
 			}
         }
         else if(in == 259){//up
