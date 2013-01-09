@@ -146,23 +146,17 @@ int Application::execute(std::string filename){
 				running = false;
         }
         else if(in == 258){//dn todo check scrolling things
-        	log << "Start" << std::endl;
 			if(current->next()){
 				current = current->next();
-				log << "set next" << std::endl;
 				current->set_pos(tempPos);
-				log << "set pos" << std::endl;
 				if(current->cursor_position() < xShift){
-					log << "To the left" << std::endl;
 					if(current->cursor_position()-display->xMax() < 0)
 						xShift = 0;
 					else
 						xShift = current->cursor_position()-display->xMax();
 					render();
 				}
-				log << "Continuing" << std::endl;
 				if(display->yPos() == display->yMax()-1){
-					log << "bottom" << std::endl;
 					top = top->next();
 					updateMove();
 					render();
@@ -170,7 +164,6 @@ int Application::execute(std::string filename){
 				}
 				else
 					updateMove(1);
-				log << "Done" << std::endl << std::endl;
 			}
         }
         else if(in == 259){//up
@@ -196,8 +189,8 @@ int Application::execute(std::string filename){
 			else if(display->xPos()){
 				updateMove();
 			}*/
-			if(current->cursor_position() < xShift){
-				xShift = current->cursor_position()-display->xMax();
+			if(current->cursor_position() < xShift && xShift){
+				xShift--;
 				render();
 			}
 			updateMove();
@@ -211,7 +204,7 @@ int Application::execute(std::string filename){
 			else if(shift){
 				updateMove();
 			}*/
-			if(current->cursor_position() > xShift+display->xMax()){
+			if(current->cursor_position() > xShift+display->xMax()-1){
 				xShift = current->cursor_position()-display->xMax();
 				render();
 			}
@@ -433,6 +426,7 @@ void Application::updateMove(int my){
 
 void Application::updateMove(){
 	display->mv(current->cursor_position()-xShift, display->yPos());
+	log << display->yPos() << "\t" << display->xPos() << std::endl;
 	move(display->yPos(), 5+display->xPos());
 }
 
@@ -479,6 +473,9 @@ void Application::find(std::string what){
 }
 
 void Application::load(){
+	/*
+		NOTE: Add case for CRLF line endings rather than just LF
+	*/
 	std::ifstream infile(filename.c_str());
     if(infile.is_open()){
         Line* last = NULL;

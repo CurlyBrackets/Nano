@@ -3,6 +3,8 @@
 #include <initializer_list>
 #include <algorithm>
 
+#include <fstream>
+
 /*
 	must implement next() and prev() for get/set
 	Node must have >/</== for sorting
@@ -182,10 +184,16 @@ class List{
 		}
 
 		iterator iter_at(unsigned int index){
+			std::ofstream ofile("test.txt");
+			ofile << "start " << index << std::endl;
 			iterator ret = begin();
+			ofile << "asdfsdfg" << std::endl;
 			for(unsigned int i=0;i<index && ret != end();i++){
+				ofile << "loop" << std::endl;
 				++ret;
 			}
+			ofile << "done " << std::endl;
+			ofile.close();
 			return ret;
 		}
 		T* operator[](unsigned int index){

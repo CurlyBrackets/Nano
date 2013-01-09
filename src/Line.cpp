@@ -88,7 +88,10 @@ int Line::decrementPos(){
     }
     else
         ret = 0;*/
-	if((*currentChar)->prev()){
+	if(currentChar.end()){
+		currentChar = data.iter_at(data.length()-1);
+	}
+	else if((*currentChar)->prev()){
 		--currentChar;
 	}
 	else
@@ -131,10 +134,13 @@ void Line::set_num(unsigned int num){
 }
 
 unsigned int Line::cursor_position(){
+	std::ofstream ofile("test2.txt");
+	ofile << !data.length() << std::endl;
+	ofile.close();
 	if(!data.length())
 		return 0;
-	else if(currentChar == data.end())
-		return data[data.length()]->position();
+	else if(currentChar.end())
+		return data[data.length()-1]->position()+1;
 	else
 		return (*currentChar)->position();
 }

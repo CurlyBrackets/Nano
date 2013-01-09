@@ -2,6 +2,7 @@
 #define LINE_H
 #include <string>
 #include "String.h"
+#include <fstream>
 
 class Line
 {
