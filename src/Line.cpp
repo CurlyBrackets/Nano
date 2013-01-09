@@ -69,7 +69,7 @@ bool Line::del(){
 
 int Line::incrementPos(unsigned int curPos){
     int ret = 1;
-    if(currentChar != data.end()){
+    if(!currentChar.end()){
     	if((*currentChar)->ch() == '\t')
     		ret = 4-curPos%5;
     	++currentChar;
