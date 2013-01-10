@@ -67,44 +67,27 @@ bool Line::del(){
 		return true;
 }
 
-int Line::incrementPos(unsigned int curPos){
-    int ret = 1;
-    if(!currentChar.end()){
-    	if((*currentChar)->ch() == '\t')
-    		ret = 4-curPos%5;
+void Line::incrementPos(){
+    if(!currentChar.end())
     	++currentChar;
-    }
-    else
-    	ret = 0;
-    return ret;
 }
 
-int Line::decrementPos(){
-    int ret = -1;
-    /*if(cPos > 0){
-        if(data[cPos-1]->ch() == 9)
-            ret = -4;
-        cPos--;
-    }
-    else
-        ret = 0;*/
-	if(currentChar.end()){
+void Line::decrementPos(){
+	if(currentChar.end())
 		currentChar = data.iter_at(data.length()-1);
-	}
-	else if((*currentChar)->prev()){
+	else if((*currentChar)->prev())
 		--currentChar;
-	}
-	else
-		ret = 0;
-    return ret;
 }
 
 void Line::set_pos(int newPos){
-	/*if(newPos > data.length())
-		cPos = data.length();
-	else if(newPos > -1)
-		cPos = newPos;*/
-	currentChar = data.iter_at(newPos);
+	if(newPos > data.length() || newPos < 0)
+		currentChar = data.end();
+	else
+		currentChar = data.iter_at(newPos);
+}
+
+void Line::set_pos(String::iterator it){
+	currentChar = it;
 }
 
 String Line::string(){
@@ -134,9 +117,6 @@ void Line::set_num(unsigned int num){
 }
 
 unsigned int Line::cursor_position(){
-	std::ofstream ofile("test2.txt");
-	ofile << !data.length() << std::endl;
-	ofile.close();
 	if(!data.length())
 		return 0;
 	else if(currentChar.end())

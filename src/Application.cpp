@@ -80,11 +80,11 @@ int Application::execute(std::string filename){
 			changed = true;
 			//render();//should be a single line refresh in the end
 			renderLine();
-			current->incrementPos(display->xPos());
+			current->incrementPos();
 			updateMove();
         }
         else if(in == CWin::key_backspace()){
-			if(current->decrementPos()){
+			if(current->){
 				log << "normal" << std::endl;
 				changed = true;
 				current->del();
@@ -150,7 +150,7 @@ int Application::execute(std::string filename){
 				current = current->next();
 				current->set_pos(tempPos);
 				if(current->cursor_position() < xShift){
-					if(current->cursor_position()-display->xMax() < 0)
+					if((int)current->cursor_position()-(int)display->xMax() < 0)
 						xShift = 0;
 					else
 						xShift = current->cursor_position()-display->xMax();
@@ -170,6 +170,13 @@ int Application::execute(std::string filename){
 			if(current->prev()){
 				current = current->prev();
 				current->set_pos(tempPos);
+				if(current->cursor_position() < xShift){
+					if((int)current->cursor_position()-(int)display->xMax() < 0)
+						xShift = 0;
+					else
+						xShift = current->cursor_position()-display->xMax();
+					render();
+				}
 				if(display->yPos() == 0 && top->prev()){
 					top = top->prev();
 					updateMove();
@@ -181,14 +188,7 @@ int Application::execute(std::string filename){
 			}
         }
         else if(in == 260){//left
-        	int shift = current->decrementPos();
-			/*if((int)display->xPos()+shift < 0 && xShift){
-				xShift += shift;
-				render();
-			}
-			else if(display->xPos()){
-				updateMove();
-			}*/
+        	current->decrementPos();
 			if(current->cursor_position() < xShift && xShift){
 				xShift--;
 				render();
@@ -196,42 +196,34 @@ int Application::execute(std::string filename){
 			updateMove();
         }
         else if(in == 261){//right
-			int shift = current->incrementPos(display->xPos());
-			/*if(display->xPos()+shift > display->xMax()){
-				xShift += shift;
-				render();
-			}
-			else if(shift){
-				updateMove();
-			}*/
+			current->incrementPos();
 			if(current->cursor_position() > xShift+display->xMax()-1){
-				xShift = current->cursor_position()-display->xMax();
+				xShift = current->cursor_position()-display->xMax()+1;
 				render();
 			}
 			updateMove();
         }
         else if(in == CWin::key_end()){
-        	current->set_pos(current->string().length());
-        	if(current->position() < display->xMax()){
+        	//current->set_pos(current->string().length());
+        	current->set_pos(-1);
+        	if(current->cursor_position() < display->xMax()){
 				updateMove();
 			}
         	else{
-        		xShift = current->position()-display->xMax()+1;
+        		xShift = current->cursor_position()-display->xMax()+1;
 				updateMove();
 				render();
         	}
         }
         else if(in == 262){//home
-        	int pos = 0, cpos = 0;
-        	while(current->string()[cpos]->ch() < 0x20 || current->string()[cpos]->ch() > 0x7E){
-        		if(current->string()[cpos]->ch() == 9)
-        			pos += 4; //TAB-ADJUST
-				else
-					pos++;
-				cpos++;
-        	}
-        	xShift = 0;
-			current->set_pos(cpos);
+			String::iterator tempChar = current->string().begin();
+			while((*tempChar)->ch() < 0x21 || (*tempChar)->ch() > 0x7E)
+				++tempChar;
+			current->set_pos(tempChar);
+			if(current->cursor_position() < display->xMax())
+				xShift = 0;
+        	else
+        		xShift = current->cursor_position()-display->xMax()-1;
 			updateMove();
 			render();
         }
@@ -367,18 +359,22 @@ int Application::promptBool(std::string str){
 	control->clear();
 	control->print(str, 0, 0);
 	control->refresh();
-	std::string input;
+	/*std::string input;
 	do{
 		if(!input.empty()){
 			control->print("Please enter a variant of yes, no, or cancel into the box", 0, 1);
 			control->refresh();
 		}
 		input = control->input(str.length(),0, control->xMax()-str.length());
-	}while(!string_check(input, {"y", "Y", "Yes", "yes", "n", "N", "no", "No", "c", "C", "cancel", "Cancel"}));
+	}while(!string_check(input, {"y", "Y", "Yes", "yes", "n", "N", "no", "No", "c", "C", "cancel", "Cancel"}));*/
+	int input;
+	do{
+		input = getch();
+	}while(input != 'Y' && input != 'y' && input != 'N' && input != 'n' && input != 'C' && input != 'c');
     renderControl();
-    if(input[0] == 'y' || input[0] == 'Y')
+    if(input == 'y' || input == 'Y')
     	return 1;
-	else if(input[0] == 'n' || input[0] == 'N')
+	else if(input == 'n' || input == 'N')
 		return 0;
 	else
 	    return -1;
@@ -426,7 +422,6 @@ void Application::updateMove(int my){
 
 void Application::updateMove(){
 	display->mv(current->cursor_position()-xShift, display->yPos());
-	log << display->yPos() << "\t" << display->xPos() << std::endl;
 	move(display->yPos(), 5+display->xPos());
 }
 

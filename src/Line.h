@@ -20,9 +20,10 @@ class Line
         void insertAfter(Line* line);
         void insert(int ch);
         bool del();
-        int incrementPos(unsigned int curPos);
-        int decrementPos();
+        void incrementPos();
+        void decrementPos();
         void set_pos(int newPos);
+        void set_pos(String::iterator it);
         unsigned int position() const;
         unsigned int cursor_position();
 
