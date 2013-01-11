@@ -78,13 +78,11 @@ int Application::execute(std::string filename){
         if(in > 0x1F && in < 0x7F){//typable
 			current->insert(in);
 			changed = true;
-			//render();//should be a single line refresh in the end
 			renderLine();
-			current->incrementPos();
 			updateMove();
         }
-        else if(in == CWin::key_backspace()){
-			if(current->){
+        else if(in == 263){
+			if(current->cursor_position()){
 				log << "normal" << std::endl;
 				changed = true;
 				current->del();
@@ -492,6 +490,7 @@ void Application::load(){
 				if(last->string().length() > 0)
                 	last->string()[0]->set_pos(0);
             }
+            log << last->string().length() << "\t" << last->string() << std::endl;
         }
     }
     else{

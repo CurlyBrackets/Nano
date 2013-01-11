@@ -51,16 +51,23 @@ void Line::insert(int ch){
         //move to next line
     }
     else{
+    	/*
+    		EFFICIENCY IMPROVEMENT
+    	*/
         data.insert(new Character(ch), currentChar);
-        (*currentChar)->prev()->set_pos((*currentChar)->position());//update positions?
+        if(!currentChar.end())
+        	(*currentChar)->prev()->set_pos((*currentChar)->position());
+		else
+			(*data.begin())->set_pos(0);//here
     }
 }
 
 bool Line::del(){
-	if(currentChar != data.end()){
+	if(!currentChar.end()){
 		String::iterator it = currentChar;
 		++currentChar;
 		delete data.pop(it);
+		(*currentChar)->prev()->set_pos();
 		return false;
 	}
 	else

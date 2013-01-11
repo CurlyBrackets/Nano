@@ -33,6 +33,11 @@ void Character::set_pos(unsigned int num){
 		next()->set_pos((ch() == '\t')?num+(4-num%5):num+1);
 }
 
+void Character::set_pos(){
+	if(next())
+		next()->set_pos((ch() == '\t')?_pos+(4-_pos%5):_pos+1);
+}
+
 void Character::set_color(int colour){
 	/*if(colour == -1){
 		if(prev() && prev()->ch() != 0x20 && prev()->ch() != '\t')

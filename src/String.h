@@ -11,6 +11,7 @@ class Character{
 		Character(const Character& b);
 
 		void set_pos(unsigned int num);
+		void set_pos();
 		void set_color(int colour=-1);
 		int ch() const;
 		int colour() const;

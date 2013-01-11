@@ -165,12 +165,14 @@ class List{
 				push_back(node);
 			}
 			else{
-				node->next((*it)->next());
-				node->next()->prev(node);
-				node->prev(*it);
-				(*it)->next(node);
+				if((*it)->prev()){
+					node->prev((*it)->prev());
+					node->prev()->next(node);
+				}
+				node->next((*it));
+				(*it)->prev(node);
+				size++;
 			}
-			size++;
 		}
 		T* pop(iterator it){
 			if(it.end())
@@ -184,16 +186,10 @@ class List{
 		}
 
 		iterator iter_at(unsigned int index){
-			std::ofstream ofile("test.txt");
-			ofile << "start " << index << std::endl;
 			iterator ret = begin();
-			ofile << "asdfsdfg" << std::endl;
 			for(unsigned int i=0;i<index && ret != end();i++){
-				ofile << "loop" << std::endl;
 				++ret;
 			}
-			ofile << "done " << std::endl;
-			ofile.close();
 			return ret;
 		}
 		T* operator[](unsigned int index){
