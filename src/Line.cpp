@@ -67,7 +67,10 @@ bool Line::del(){
 		String::iterator it = currentChar;
 		++currentChar;
 		delete data.pop(it);
-		(*currentChar)->prev()->set_pos();
+		if((*currentChar)->prev())
+			(*currentChar)->prev()->set_pos();
+		else
+			(*currentChar)->set_pos(0);
 		return false;
 	}
 	else

@@ -81,18 +81,18 @@ int Application::execute(std::string filename){
 			renderLine();
 			updateMove();
         }
-        else if(in == 263){
+        else if(in == 263/*CWin::key_backspace()*/){
 			if(current->cursor_position()){
-				log << "normal" << std::endl;
 				changed = true;
+				current->decrementPos();
 				current->del();
 				renderLine();
 				updateMove();
 			}
 			else if(!display->xPos() && current->prev()){
-				log << "fgsfds" << std::endl;
 				changed = true;
-				current->prev()->set_pos(current->prev()->string().length());//move the cursor to the joining point
+				int temp = current->prev()->
+				current->prev()->set_pos(current->prev()->string().end());//move the cursor to the joining point
 				current->prev()->append(current->string());//move the strings together
 				//some magic in order to pop the one node
 				current = current->prev();
@@ -105,6 +105,7 @@ int Application::execute(std::string filename){
 					current->next(NULL);
 				delete temp;
 				current->set_num(current->number());
+				(*current->string().begin())->set_pos();
 
 				updateMove(-1);
 				render();
@@ -126,6 +127,7 @@ int Application::execute(std::string filename){
 					current->next(NULL);
 				delete temp;
 				current->set_num(current->number());
+				(*current->string().begin())->set_pos();
 
 				render();
 				renderNumbers();

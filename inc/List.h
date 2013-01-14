@@ -181,6 +181,8 @@ class List{
 				(*it)->next()->prev((*it)->prev());
 			if((*it)->prev())
 				(*it)->prev()->next((*it)->next());
+			if(it == begin())
+				first = first->next();
 			size--;
 			return (*it);
 		}
